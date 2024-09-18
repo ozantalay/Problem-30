@@ -1,17 +1,30 @@
 import { PlusIcon, TrashIcon } from '@heroicons/react/20/solid'
+import { useState } from 'react';
+
 
 export default function AddUsers() {
-  const users = [{ name: 'Test', id: crypto.randomUUID() }]
+  const [users, setUsers] = useState([{ name: 'Test', id: crypto.randomUUID() }]);
+  const [inputValue, setInputValue] = useState('');
 
-  function handleAddUser(event) {}
+  function handleAddUser(event) {
+    event.preventDefault();
+    
+    if (inputValue.trim()) {
+      const newUser = { name: inputValue, id: crypto.randomUUID() };
+      setUsers([...users, newUser]);
+      setInputValue(''); 
+    }
+  }
 
-  function handleDeleteUser(userToDelete) {}
+  function handleDeleteUser(userToDelete) {
+    setUsers(users.filter(user => user.id !== userToDelete.id));
+  }
 
   return (
     <div className='mx-auto p-8 max-w-lg'>
       <div>
         <Header />
-        <form className='mt-6 flex'>
+        <form className='mt-6 flex' onSubmit={handleAddUser}>
           <label htmlFor='name' className='sr-only'>
             Kullanıcı Adı
           </label>
@@ -21,6 +34,9 @@ export default function AddUsers() {
             id='name'
             className='px-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6'
             placeholder='Kullanıcı adını girin'
+            value={inputValue}
+            onChange={(e)=>setInputValue(e.target.value)}
+
           />
           <button
             type='submit'
@@ -36,7 +52,7 @@ export default function AddUsers() {
         </h3>
         <ul role='list' className='mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2'>
           {users.map((user) => (
-            <User key={user.id} user={user} />
+            <User key={user.id} user={user} onDelete={handleDeleteUser} />
           ))}
         </ul>
       </div>
@@ -44,7 +60,7 @@ export default function AddUsers() {
   )
 }
 
-function User({ user }) {
+function User({ user ,onDelete}) {
   return (
     <li>
       <div className='group flex w-full items-center justify-between space-x-3 rounded-full border border-gray-300 p-2 text-left shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'>
@@ -67,10 +83,11 @@ function User({ user }) {
             </span>
           </span>
         </span>
-        <button className='inline-flex h-10 w-10 flex-shrink-0 items-center justify-center'>
+        <button onClick={()=>onDelete(user)} className='inline-flex h-10 w-10 flex-shrink-0 items-center justify-center'>
           <TrashIcon
             className='h-5 w-5 text-gray-400 group-hover:text-gray-500'
             aria-hidden='true'
+            
           />
         </button>
       </div>
